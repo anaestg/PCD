@@ -22,9 +22,9 @@ class Cliente():
 				self.s.close()
 				sys.exit()
 			else:
-				with open("22124326.txt", "a") as f:
+				with open("u22124326AI1.txt", "a") as f:
 					msg = input('Escriba el mensaje: ')
-					f.write("\n" + nick + " - " + msg)
+					f.write("\n" + nick + ": " + msg)
 					msg = nick + ': ' + msg
 					self.enviar(msg)
 				
