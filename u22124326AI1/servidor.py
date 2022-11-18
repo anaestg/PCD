@@ -6,10 +6,12 @@ import os
 
 class Servidor():
 
-	def __init__(self, host=socket.gethostname(), port=int(input("Que puerto quiere usar ? "))):
+	def __init__(self, host = socket.gethostname(), port = int(input("Que puerto quiere usar: "))):
 		self.clientes = []
-		print('\nSu IP actual es : ',socket.gethostbyname(host))
-		print('\n\tProceso con PID = ',os.getpid(), '\n\tHilo PRINCIPAL con ID =',threading.currentThread().getName(), '\n\tHilo en modo DAEMON = ', threading.currentThread().isDaemon(), '\n\tTotal Hilos activos en este punto del programa =', threading.active_count())
+		self.nicks = []
+
+		print('\n Su IP actual es : ',socket.gethostbyname(host))
+		print('\n\t Proceso con PID = ',os.getpid(), '\n\t Hilo PRINCIPAL con ID =',threading.currentThread().getName(), '\n\t Hilo en modo DAEMON = ', threading.currentThread().isDaemon(), '\n\t Total Hilos activos en este punto del programa =', threading.active_count())
 		self.s = socket.socket()
 		self.s.bind((str(host), int(port)))
 		self.s.listen(30)
@@ -27,7 +29,7 @@ class Servidor():
 			else: pass
 
 	def aceptarC(self):
-		print('\nHilo ACEPTAR con ID =',threading.currentThread().getName(), '\n\tHilo en modo DAEMON = ', threading.currentThread().isDaemon(),'\n\tPertenece al PROCESO con PID', os.getpid(), "\n\tHilos activos TOTALES ", threading.active_count())
+		print('\n Hilo ACEPTAR con ID =',threading.currentThread().getName(), '\n\t Hilo en modo DAEMON = ', threading.currentThread().isDaemon(),'\n\t Pertenece al PROCESO con PID', os.getpid(), "\n\t Hilos activos TOTALES ", threading.active_count())
 		
 		while True:
 			try:
@@ -38,21 +40,26 @@ class Servidor():
 			except: pass
 
 	def procesarC(self):
-		print('\nHilo PROCESAR con ID =',threading.currentThread().getName(), '\n\tHilo en modo DAEMON = ', threading.currentThread().isDaemon(),'\n\tPertenece al PROCESO con PID', os.getpid(), "\n\tHilos activos TOTALES ", threading.active_count())
+		print('\n Hilo PROCESAR con ID =',threading.currentThread().getName(), '\n\t Hilo en modo DAEMON = ', threading.currentThread().isDaemon(),'\n\t Pertenece al PROCESO con PID', os.getpid(), "\n\t Hilos activos TOTALES ", threading.active_count())
 		while True:
 			if len(self.clientes) > 0:
 				for c in self.clientes:
 					try:
 						data = c.recv(32)
-						if data: self.broadcast(data,c)
+						if data:
+							onlymsg = pickle.loads(data)
+							if onlymsg.find(':') != -1:
+								self.broadcast(data,c)
+							else:
+								self.nicks.append(onlymsg)
 					except: pass
 
 	def broadcast(self, msg, cliente):
 		for c in self.clientes:
 			print("Clientes conectados Right now = ", len(self.clientes))
+			print(self.nicks)
 			try:
 				if c != cliente: 
-					print(pickle.loads(msg))
 					c.send(msg)
 			except: self.clientes.remove(c)
 
